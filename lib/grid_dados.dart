@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -10,31 +11,32 @@ class GridDados extends StatefulWidget {
 }
 
 class _GridDadosState extends State<GridDados> {
+  String text = '';
+
+  int index = 0;
   void rolarDados(int numeroFaces) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        String text = '';
+    Timer.periodic(const Duration(milliseconds: 10), (timer) {
+      if (index == 100) {
+        timer.cancel();
+        index = 0;
+        mostrarResultado();
+        return;
+      }
+      index++;
+      setState(() {
+        text = (Random().nextInt(numeroFaces) + 1).toString();
+      });
+    });
+  }
 
-        void animacaoDados(int numeroFaces, StateSetter setState) {
-          for (int i = 0; i < 10; i++) {
-            Future.delayed(const Duration(milliseconds: 1), () {
-              setState(() {
-                text = (Random().nextInt(numeroFaces) + 1).toString();
-              });
-            });
-          }
-        }
-
-        return AlertDialog(
-            title: const Text("Tirou:"),
-            content: StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) {
-              animacaoDados(numeroFaces, setState);
-
-              return Text(text);
-            }));
-      },
+  mostrarResultado() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 5),
+        content: Text("Você tirou um $text!"),
+        // action: SnackBarAction(label: "Fechar", onPressed: () {}),
+      ),
     );
   }
 
@@ -49,6 +51,15 @@ class _GridDadosState extends State<GridDados> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  'Resultado: $text',
+                  style: const TextStyle(fontSize: 20),
+                )
+              ],
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
