@@ -19,7 +19,7 @@ class _GridDadosState extends State<GridDados> with TickerProviderStateMixin  {
   int index = 0;
   void rolarDados(int numeroFaces) {
     Timer.periodic(const Duration(milliseconds: 10), (timer) {
-      if (index == 10) {
+      if (index == 100) {
         mudaProgressoAtivaAnimacao();
         timer.cancel();
         index = 0;
@@ -42,6 +42,34 @@ class _GridDadosState extends State<GridDados> with TickerProviderStateMixin  {
         content: Text("Você tirou um $text!"),
         // action: SnackBarAction(label: "Fechar", onPressed: () {}),
       ),
+    );
+  }
+
+  mostraUltimasEscolhasDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Últimas 6 jogadas'),
+          content: Container(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var item in ultimasEscolhas)
+                  Text('D${item['numeroFaces']} - ${item['resultado']}'),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -100,6 +128,7 @@ class _GridDadosState extends State<GridDados> with TickerProviderStateMixin  {
       ultimasEscolhas = [];
     }
 
+    ultimaEscolha = {};
     ultimaEscolha['numeroFaces'] = numeroFaces.toString();
     ultimaEscolha['resultado'] = resultado;
     ultimasEscolhas.add(ultimaEscolha);
@@ -125,6 +154,13 @@ class _GridDadosState extends State<GridDados> with TickerProviderStateMixin  {
                       value: progress / 6,
                       semanticsLabel: 'Progresso até o 6',
                     )
+                ),
+                IconButton(
+                  icon: const Icon(Icons.history),
+                  tooltip: 'Últimas 6 jogadas',
+                  onPressed: () {
+                    mostraUltimasEscolhasDialog();
+                  },
                 ),
               ],
             ),

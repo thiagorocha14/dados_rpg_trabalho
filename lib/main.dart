@@ -2,10 +2,12 @@ import 'package:dados_rpg/grid_dados.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(RPGMain());
+  runApp(const RPGMain());
 }
 
 class RPGMain extends StatelessWidget {
+  const RPGMain({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -13,7 +15,7 @@ class RPGMain extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
-      home: GridDados(),
+      home: const GridDados(),
     );
   }
 }
