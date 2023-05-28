@@ -10,16 +10,21 @@ class GridDados extends StatefulWidget {
   State<GridDados> createState() => _GridDadosState();
 }
 
-class _GridDadosState extends State<GridDados> {
+class _GridDadosState extends State<GridDados> with TickerProviderStateMixin  {
   String text = '';
+  List ultimasEscolhas = [];
+  Map<String, String> ultimaEscolha = {};
+  double progress = 0.0;
 
   int index = 0;
   void rolarDados(int numeroFaces) {
     Timer.periodic(const Duration(milliseconds: 10), (timer) {
-      if (index == 100) {
+      if (index == 10) {
+        mudaProgressoAtivaAnimacao();
         timer.cancel();
         index = 0;
         mostrarResultado();
+        adicionaUltimaEscolha(numeroFaces, text);
         return;
       }
       index++;
@@ -40,6 +45,66 @@ class _GridDadosState extends State<GridDados> {
     );
   }
 
+  void mudaProgressoAtivaAnimacao() {
+    setState(() {
+      if (progress >= 6) {
+          progress = 1;
+        } else {
+          progress++;
+      }
+      double previusProgress = progress;
+      double begin = progress == 1 ? 0 : progress - 1;
+      _progressAnimation = Tween<double>(begin: begin, end: progress).animate(_animationController!)
+      ..addListener(() {
+        setState(() {
+          progress = _progressAnimation!.value;
+        });
+      });
+
+      _animationController!.forward(from: 0);
+
+      if (previusProgress == 6) {
+        Timer(const Duration(milliseconds: 1500), () {
+          progress = 0;
+          _progressAnimation = Tween<double>(begin: 0, end: 6).animate(_animationController!);
+          _animationController!.reverse(from: 6);
+        });
+      }
+    });
+  }
+
+  AnimationController? _animationController;
+  Animation<double>? _progressAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300), // Set the duration of the animation
+    );
+  }
+
+  void startProgressAnimation() {
+    _animationController!.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController!.dispose();
+    super.dispose();
+  }
+
+  void adicionaUltimaEscolha(numeroFaces, resultado) {
+    if (ultimasEscolhas.length == 6) {
+      ultimasEscolhas = [];
+    }
+
+    ultimaEscolha['numeroFaces'] = numeroFaces.toString();
+    ultimaEscolha['resultado'] = resultado;
+    ultimasEscolhas.add(ultimaEscolha);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,10 +119,22 @@ class _GridDadosState extends State<GridDados> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                Expanded(
+                  child: 
+                    LinearProgressIndicator(
+                      value: progress / 6,
+                      semanticsLabel: 'Progresso até o 6',
+                    )
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
                 Text(
                   'Resultado: $text',
                   style: const TextStyle(fontSize: 20),
-                )
+                ),
               ],
             ),
             Row(
